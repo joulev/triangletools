@@ -1,0 +1,1589 @@
+% \iffalse
+%<*driver>
+\documentclass[11pt]{l3doc}
+\usepackage[margin=1cm,left=7cm,bottom=1.5cm]{geometry}
+\usepackage[english]{babel}
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+\usepackage[scaled=0.75]{beramono}
+\usepackage[T1]{fontenc}
+\usepackage{lipsum}
+\usepackage{triangletools}
+\usepackage[listings]{tcolorbox}
+\usepackage{xparse}
+\definecolor{maincolor}{HTML}{6830C9}
+\hypersetup{linkcolor=maincolor}
+\renewcommand\MacroLongFont{\ttfamily\small}
+\newtcblisting{codeexample}[1][]{size=minimal,
+  sidebyside gap=1cm,lefthand width=6.5cm,lower separated=false,
+  fontupper=\raggedleft,colback=white,colframe=white,
+  verbatim ignore percent,grow to left by=7cm,text side listing,
+  listing options={basicstyle=\ttfamily\small,keywordstyle=\ttfamily\small,
+  numbers=left,numberstyle=\sffamily\tiny\color{gray},stepnumber=1,numbersep=5pt},#1}
+\pgfkeys{/tcb/.cd,code only/.code={\pgfkeysalso{listing only,grow to left by=-5mm}}}
+\let\oldsyntax\syntax
+\let\oldendsyntax\endsyntax
+\renewenvironment{syntax}{^^A
+  \oldsyntax^^A
+  \renewcommand\meta[1]{$\langle${\itshape\rmfamily##1}$\rangle$}^^A
+  \renewcommand\marg[1]{\texttt{\{}\meta{##1}\texttt{\}}}^^A
+  \renewcommand\oarg[1]{\texttt{[}\meta{##1}\texttt{]}}^^A
+  \renewcommand\parg[1]{\texttt{(}\meta{##1}\texttt{)}}^^A
+}{\oldendsyntax}
+\newcommand\tikzname{Ti\emph{k}Z}
+\setlength\parindent{0pt}
+\EnableCrossrefs
+\CodelineIndex
+\RecordChanges
+\begin{document}
+\DocInput{triangletools.dtx}
+\end{document}
+%</driver>
+% \fi
+%
+%
+%
+% \title{The \pkg{triangletools} package}
+% \author{Vu Van Dung}
+% \date{\today}
+% \maketitle
+%
+% \tableofcontents
+% \setlength\parskip{1ex}^^A You have to wait until the TOC is done
+%
+% \begin{documentation}
+%
+%\section{Introduction}
+%This package aims to help you construct special points in a triangle directly 
+%in a short and easy way. Using this package, you can construct most important 
+%points listed in Clark Kimberling's Encyclopedia of Triangle Centers (ETC). 
+%Currently, all points numbered from $X_1$ and $X_{10}$, as well as the excenter, 
+%are supported; however with other utilities in this package (see Section 
+%\ref{utilities}) and a bit of knowledge in geometry and \pkg{expl3} programming, 
+%you can construct even more.
+%\section{Loading the package}
+%This package can be loaded as usual.
+%\begin{codeexample}[code only]
+%\usepackage{triangletools}
+%\end{codeexample}
+%It will load \pkg{tikz} and \pkg{expl3} automatically.
+%\section{User interface}
+%The user interface of this package, including that of the utilities, is 
+%provided as \pkg{pgf} keys under the tree |/tikz/triangletools|.
+%
+%Note that, in the following sections, a \emph{coordinate} means a \emph{named} 
+%\tikzname\ coordinate. That is, in the following example,
+%\begin{codeexample}[code only]
+%\begin{tikzpicture}
+%  \draw (0,0) -- (3,0) coordinate (a);
+%\end{tikzpicture}
+%\end{codeexample}
+%|a| is a named coordinate, while |0,0| or |3,0| are \emph{not} named coordinates.
+%The current implementation of this package only allows named coordinates in the 
+%user interface. It is like the |angles| \tikzname\ library.
+%\subsection{Accessing the keys}
+%\begin{function}{/tikz/trt}
+%  \begin{syntax}
+%    /tikz/trt=\marg{keys}
+%  \end{syntax}
+%  It executes \emph{keys} with the key path set to |/tikz/triangletools|, which 
+%  is the main key tree of this package.
+%
+%  This key is used to access all other keys in the user interface.
+%\end{function}
+%\subsection{Triangle centers}
+%\begin{function}{incenter, \trt_sp_incenter:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/incenter=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%    \cs{trt_sp_incenter:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the incenter $X_1$ of the triangle joining \tikzname\ coordinates 
+%  \meta{coor 1}, \meta{coor 2} and \meta{coor 3}. The incenter is saved to 
+%  \tikzname\ coordinate \meta{name}.
+%
+%  If you use the key (why do you use the function anyway), \meta{name} is set 
+%  to |trt output| by default. You can change that using |output name|, see 
+%  Section \ref{customization}.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={incenter=(a)(b)(c)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$I$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{excenter, \trt_sp_excenter:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/excenter=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%    \cs{trt_sp_excenter:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the excenter of the triangle. The returned point will be on the 
+%  internal angular bisector at \meta{coor 1}. Note that the order matters: 
+%  |excenter=(a)(b)(c)| is \emph{different} from |excenter=(b)(a)(c)|.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (.5,3) coordinate (a) -- 
+%        (0 ,0) coordinate (b) -- 
+%        (2 ,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={excenter=(a)(b)(c)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$I_a$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{centroid, \trt_sp_centroid:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/centroid=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%    \cs{trt_sp_centroid:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the centroid $X_2$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={centroid=(a)(b)(c)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$G$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{circumcenter, \trt_sp_circumcenter:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/circumcenter=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%    \cs{trt_sp_circumcenter:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the circumcenter $X_3$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={circumcenter=(a)(b)(c)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$O$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{orthocenter, \trt_sp_orthocenter:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/orthocenter=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%    \cs{trt_sp_orthocenter:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the orthocenter $X_4$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={orthocenter=(a)(b)(c)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$H$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{triangle center}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}\parg{index}
+%  \end{syntax}
+%  Find the point $X_{\text{\meta{index}}}$ of the triangle. Currently \meta{index}
+%  can be any integer between and including $1$ and $10$.
+%\end{function}
+%\begin{function}{\trt_sp_ninepointcenter:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(5)
+%    \cs{trt_sp_ninepointcenter:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the nine-point center $X_5$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(5)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_5$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{\trt_sp_symmedian:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(6)
+%    \cs{trt_sp_symmedian:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the symmedian point $X_6$ (\emph{aka.} the Lemoine point or Grebe point) 
+%  of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(6)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_6$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{\trt_sp_gergonne:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(7)
+%    \cs{trt_sp_gergonne:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the Gergonne point $X_7$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(7)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_7$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{\trt_sp_nagel:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(8)
+%    \cs{trt_sp_nagel:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the Nagel point $X_8$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(8)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_8$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{\trt_sp_mittenpunkt:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(9)
+%    \cs{trt_sp_mittenpunkt:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the \emph{mittenpunkt} $X_9$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(9)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_9$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{\trt_sp_spieker:nnnn}
+%  \begin{syntax}
+%    /tikz/triangletools/triangle center=\parg{coor 1}\parg{coor 2}\parg{coor 3}(10)
+%    \cs{trt_sp_spieker:nnnn} \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{name}
+%  \end{syntax}
+%  Find the Spieker center $X_{10}$ of the triangle.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={triangle center=(a)(b)(c)(10)}] (trt output) 
+%    circle[radius=1.5pt] node[below] {$X_{10}$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\subsection{Other utilities}\label{utilities}
+%\subsubsection{Line tools}\label{utilities.linetools}
+%The line tools utility can helps you play with some (very basic) operations 
+%related to lines.
+%\begin{function}{intersection}
+%  \begin{syntax}
+%    /tikz/triangletools/intersection=\parg{coor 1}\parg{coor 2}|--|\parg{coor 3}\parg{coor 4}
+%  \end{syntax}
+%  There are two lines, the first joins \meta{coor 1} and \meta{coor 2}, and the 
+%  other joins \meta{coor 3} and \meta{coor 4}. This finds the intersection of 
+%  these lines.
+%
+%  If the two lines are parallel, |trt output| is set to |(0,0)|, and the 
+%  package will report a warning.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (0,0) coordinate (a) -- (0,1) coordinate (b);
+%  \draw (1,0) coordinate (c) -- (.5,1) coordinate (d);
+%  \coordinate (e) at (1,1);
+%  \fill[maincolor,trt={intersection=(a)(b)--(c)(d)}] (trt output) 
+%    circle (1.5pt) node[above] {$I$};
+%  \fill[maincolor,trt={intersection=(a)(b)--(c)(e)}] (trt output)
+%    circle (1.5pt) node[left] {$J$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\begin{function}{foot of perpendicular}
+%  \begin{syntax}
+%    /tikz/triangletools/foot of perpendicular=\parg{coor 1}|--|\parg{coor 2}\parg{coor 3}
+%  \end{syntax}
+%  Find the foot of perpendicular of point \meta{coor 1} to the line joining 
+%  \meta{coor 2} and \meta{coor 3}.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (0,0) coordinate (b) -- (4,1) coordinate (c);
+%  \fill (1,2) circle (1.5pt) coordinate (a);
+%  \fill[maincolor,trt={foot of perpendicular=(a)--(b)(c)}] (trt output)
+%    circle (1.5pt) node[below] {$H$};
+%\end{tikzpicture}
+%\end{codeexample}
+%You can do much more using these \pkg{expl3} functions.
+%\begin{function}{\trt_lt_get_line_equation:nnNNN}
+%  \begin{syntax}
+%    \cs{trt_lt_get_line_equation:nnNNN}\marg{coor 1}\marg{coor 2}\meta{a}\meta{b}\meta{c}
+%  \end{syntax}
+%  Find the equation of the line joining \meta{coor 1} and \meta{coor 2}, in the 
+%  form of $ax+by=c$. The \pkg{l3fp} \emph{local} variables \meta{a}, \meta{b} 
+%  and \meta{c} will be set accordingly.
+%
+%  Note that for any pair of points \meta{coor 1} and \meta{coor 2}, there are 
+%  infinitely many solutions for \meta{a}, \meta{b} and \meta{c}. This function 
+%  will produce one of such solution. While the solution is likely to be the 
+%  simplest of all possible ones, this is not guaranteed.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \coordinate (a) at (1,0);
+%  \coordinate (b) at (4,1);
+%  \ExplSyntaxOn
+%  \fp_new:N \l_foo_tmpa_fp
+%  \fp_new:N \l_foo_tmpb_fp
+%  \fp_new:N \l_foo_tmpc_fp
+%  \trt_lt_get_line_equation:nnNNN {a} {b} 
+%    \l_foo_tmpa_fp \l_foo_tmpb_fp \l_foo_tmpc_fp
+%  \fp_new:N \c_foo_cm_fp
+%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
+%  \def \resultequation {
+%    $\fp_eval:n {round (\l_foo_tmpa_fp / \c_foo_cm_fp)}x + 
+%     \fp_eval:n {round (\l_foo_tmpb_fp / \c_foo_cm_fp)}y
+%    =\fp_eval:n {round (\l_foo_tmpc_fp / (\c_foo_cm_fp * \c_foo_cm_fp))}$
+%  }
+%  \ExplSyntaxOff
+%  \draw (a) -- (b) node[midway,sloped,below] {\resultequation};
+%\end{tikzpicture}
+%\end{codeexample}
+%\ExplSyntaxOn
+%\cs_undefine:N \l_foo_tmpa_fp
+%\cs_undefine:N \l_foo_tmpb_fp
+%\cs_undefine:N \l_foo_tmpc_fp
+%\cs_undefine:N \c_foo_cm_fp
+%\ExplSyntaxOff
+%\begin{function}{\trt_lt_get_intersection_line:NNNNNNNN}
+%  \begin{syntax}
+%    \cs{trt_lt_get_intersection_line:NNNNNNNN}
+%    \meta{a1}\meta{b1}\meta{c1}\meta{a2}\meta{b2}\meta{c2}\meta{x}\meta{y}
+%  \end{syntax}
+%  This function finds the intersection of lines $a_1x+b_1y=c_1$ and 
+%  $a_2x+b_2y=c_2$, afterwards store the dimensions of the intersection in 
+%  variables \meta{x} and \meta{y}.
+%
+%  All arguments are floating points variables, \meta{x} and \meta{y} needs to 
+%  be local variables.
+%\end{function}
+%\begin{function}{\trt_lt_get_intersection_coordinate:nnnnNN}
+%  \begin{syntax}
+%    \cs{trt_lt_get_intersection_coordinate:nnnnNN}
+%    \marg{coor 1}\marg{coor 2}\marg{coor 3}\marg{coor 4}\meta{x}\meta{y}
+%  \end{syntax}
+%  This function is a wrapper of \cs{trt_lt_get_intersection_line:NNNNNNNN}. It 
+%  finds the intersection of the line joining \meta{coor 1}, \meta{coor 2} and 
+%  the line joining \meta{coor 3}, \meta{coor 4}. The dimensions of the returned 
+%  point is stored in \meta{x} and \meta{y}, which are local \pkg{l3fp} 
+%  variables.
+%
+%  A warning will be raised if the lines are parallel, in that case \meta{x} and 
+%  \meta{y} are set to zero.
+%
+%  This is the base of |intersection|.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (0,0) coordinate (a) -- (0,1) coordinate (b);
+%  \draw (1,0) coordinate (c) -- (.5,1) coordinate (d);
+%  \ExplSyntaxOn
+%  \fp_new:N \l_foo_tmpa_fp
+%  \fp_new:N \l_foo_tmpb_fp
+%  \trt_lt_get_intersection_coordinate:nnnnNN {a} {b} {c} {d}
+%    \l_foo_tmpa_fp \l_foo_tmpb_fp
+%  \coordinate (i) at (\fp_to_dim:N \l_foo_tmpa_fp, 
+%                      \fp_to_dim:N \l_foo_tmpb_fp);
+%  \ExplSyntaxOff
+%  \fill[maincolor] (i) circle (1.5pt);
+%\end{tikzpicture}
+%\end{codeexample}
+%\ExplSyntaxOn
+%\cs_undefine:N \l_foo_tmpa_fp
+%\cs_undefine:N \l_foo_tmpb_fp
+%\ExplSyntaxOff
+%\begin{function}{\trt_lt_get_perpendicular_equation:nNNNNNN}
+%  \begin{syntax}
+%    \cs{trt_lt_get_perpendicular_equation:nNNNNNN}
+%    \marg{coor 1}\meta{a1}\meta{b1}\meta{c1}\meta{a2}\meta{b2}\meta{c2}
+%  \end{syntax}
+%  This function finds the line of equation $a_2x+b_2y=c_2$ that passes 
+%  coordinate \meta{coor 1} and is perpendicular to $a_1x+b_1y=c_1$.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (-1,0) coordinate (b) node[left] {$(-1,0)$} -- 
+%        (3,1)  coordinate (c) node[right] {$(3,1)$};
+%  \fill (0.5,4) circle (1.5pt) coordinate (a) node[above] {$(0.5,4)$};
+%  \ExplSyntaxOn
+%  \fp_new:N \l_foo_tmpa_fp
+%  \fp_new:N \l_foo_tmpb_fp
+%  \fp_new:N \l_foo_tmpc_fp
+%  \fp_new:N \l_foo_tmpd_fp
+%  \fp_new:N \l_foo_tmpe_fp
+%  \fp_new:N \l_foo_tmpf_fp
+%  \trt_lt_get_line_equation:nnNNN {b} {c} 
+%    \l_foo_tmpa_fp \l_foo_tmpb_fp \l_foo_tmpc_fp
+%  \trt_lt_get_perpendicular_equation:nNNNNNN {a}
+%    \l_foo_tmpa_fp \l_foo_tmpb_fp \l_foo_tmpc_fp
+%    \l_foo_tmpd_fp \l_foo_tmpe_fp \l_foo_tmpf_fp
+%  \fp_new:N \c_foo_cm_fp
+%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
+%  \def \resultequation {
+%    $\fp_eval:n {round (\l_foo_tmpd_fp / \c_foo_cm_fp)}x + 
+%     \fp_eval:n {round (\l_foo_tmpe_fp / \c_foo_cm_fp)}y
+%    =\fp_eval:n {round (\l_foo_tmpf_fp / (\c_foo_cm_fp * \c_foo_cm_fp))}$
+%  }
+%  \ExplSyntaxOff
+%  \path (1,0) node[below=3mm,align=center] 
+%    {Equation of perpendicular line:\\\resultequation};
+%\end{tikzpicture}
+%\end{codeexample}
+%\ExplSyntaxOn
+%\cs_undefine:N \l_foo_tmpa_fp
+%\cs_undefine:N \l_foo_tmpb_fp
+%\cs_undefine:N \l_foo_tmpc_fp
+%\cs_undefine:N \l_foo_tmpd_fp
+%\cs_undefine:N \l_foo_tmpe_fp
+%\cs_undefine:N \l_foo_tmpf_fp
+%\cs_undefine:N \c_foo_cm_fp
+%\ExplSyntaxOff
+%\begin{function}{\trt_lt_get_perpendicular_coordinate:nnnNN}
+%  \begin{syntax}
+%    \cs{trt_lt_get_perpendicular_coordinate:nnnNN}
+%    \marg{coor 1}\marg{coor 2}\marg{coor 3}\meta{x}\meta{y}
+%  \end{syntax}
+%  Find the dimensions of the foot of perpendicular from \meta{coor 1} to the 
+%  line joining \meta{coor 2} and \meta{coor 3}. Afterwards store the 
+%  dimensions found in \meta{x} and \meta{y}.
+%
+%  This is the base of |foot of perpendicular|.
+%\end{function}
+%\subsubsection{The barycentric coordinate system}
+%\begin{function}{initialize barycentric}
+%  \begin{syntax}
+%    /tikz/triangletools/initialize barycentric=\parg{coor 1}\parg{coor 2}\parg{coor 3}
+%  \end{syntax}
+%  Use the three coordinates as ``anchors'' of the barycentric coordinate 
+%  system.
+%\end{function}
+%\begin{function}{bc3}
+%  \begin{syntax}
+%    (bc3 cs:\meta{l1},\meta{l2},\meta{l3})
+%  \end{syntax}
+%  Using the barycentric coordinate system. Note that the system needs to be 
+%  initialized in advance using |initialize barycentric|, and an error message 
+%  will be reported if you do otherwise.
+%
+%  The sum of \meta{l1}, \meta{l2} and \meta{l3} is not necessarily $1$ -- 
+%  the package will take care of that internally.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \draw (1,3) coordinate (a) --
+%        (0,0) coordinate (b) --
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={initialize barycentric=(a)(b)(c)}] (bc3 cs:1,2,3)
+%    circle[radius=1.5pt] node[above] {$P_a$};
+%  \fill[maincolor,trt={initialize barycentric=(b)(c)(a)}] (bc3 cs:1,2,3)
+%    circle[radius=1.5pt] node[above] {$P_b$};
+%  \fill[maincolor,trt={initialize barycentric=(c)(a)(b)}] (bc3 cs:1,2,3)
+%    circle[radius=1.5pt] node[above] {$P_c$};
+%\end{tikzpicture}
+%\end{codeexample}
+%\subsubsection{Distance-finding utility}
+%\begin{function}{\trt_distance:nnN}
+%  \begin{syntax}
+%    \cs{trt_distance:nnN} \marg{coor 1} \marg{coor 2} \meta{fp var}
+%  \end{syntax}
+%  Find distance between \meta{coor 1} and \meta{coor 2}, and store that 
+%  value to \meta{fp var}.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}
+%  \path (0,0) coordinate (a) (4,3) coordinate (b);
+%  \ExplSyntaxOn
+%  \fp_new:N \l_foo_tmpa_fp
+%  \trt_distance:nnN {a} {b} \l_foo_tmpa_fp
+%  \fp_new:N \c_foo_cm_fp
+%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
+%  \draw (a) -- (b) node[midway,sloped,below]
+%    { \fp_eval:n {round(\l_foo_tmpa_fp / \c_foo_cm_fp)} cm };
+%  \ExplSyntaxOff
+%\end{tikzpicture}
+%\end{codeexample}
+%\ExplSyntaxOn
+%\cs_undefine:N \l_foo_tmpa_fp
+%\cs_undefine:N \c_foo_cm_fp
+%\ExplSyntaxOff
+%\begin{function}{\trt_distance_triangle:nnnNNN}
+%  \begin{syntax}
+%    \cs{trt_distance_triangle:nnnNNN}\marg{coor 1}\marg{coor 2}\marg{coor 3}\meta{a}\meta{b}\meta{c}
+%  \end{syntax}
+%  \cs{trt_distance:nnN} is needed to find the side lengths in a triangle
+%  (these side lengths are very helpful in many areas, for instance in this 
+%  package to find special points based on the barycentric system). However, 
+%  using it three times in a row is not quite elegant; this function is defined 
+%  to automate that process.
+%
+%  \meta{a} is set to the distance between \meta{coor 2} and \meta{coor 3}, 
+%  similar things happen for \meta{b} and \meta{c}.
+%\end{function}
+%\subsection{Customization}\label{customization}
+%\begin{function}{output name}
+%\begin{syntax}
+%  /tikz/triangletools/output name=\meta{name}
+%\end{syntax}
+%This key can be used to change the name of the returned coordinates. The 
+%initial value of this key is |trt output|.
+%\end{function}
+%\begin{codeexample}
+%\begin{tikzpicture}[trt={output name=hello world}]
+%  \draw (1,3) coordinate (a) -- 
+%        (0,0) coordinate (b) -- 
+%        (4,0) coordinate (c) -- cycle;
+%  \fill[maincolor,trt={circumcenter=(a)(b)(c)}] (hello world) 
+%    circle[radius=1.5pt] node[below] {$X$};
+%\end{tikzpicture}
+%\end{codeexample}
+%
+% \end{documentation}
+%
+% \StopEventually{\PrintIndex}
+%
+% \begin{implementation}
+%
+% \section{Implementation}
+%
+%    \begin{macrocode}
+%<@@=trt>
+%    \end{macrocode}
+%
+% \subsection{The main package file}
+%
+%    \begin{macrocode}
+%<*triangletools>
+\RequirePackage{tikz}
+\RequirePackage{xparse}
+\ProvidesExplPackage {triangletools} {2020/04/30} {0.1}
+  {TikZ support for triangular geometry}
+%    \end{macrocode}
+%
+% \begin{macro}{\trt@tmp@i, \trt@tmp@ii}
+% We will use these dimensions many times to extract the dimensions of a \tikzname\ 
+% coordinate.
+%    \begin{macrocode}
+\newdimen\trt@tmp@i
+\newdimen\trt@tmp@ii
+%    \end{macrocode}
+% \end{macro}
+%
+% Let's load the necessary subpackage files.
+%
+%    \begin{macrocode}
+\input {trtmessages.code.tex}
+\input {trtlinetools.code.tex}
+\input {trtbarycentric.code.tex}
+\input {trtdistance.code.tex}
+\input {trtspecialpoints.code.tex}
+\input {trtfrontend.code.tex}
+%</triangletools>
+%    \end{macrocode}
+%
+% \subsection{Errors and warnings}
+%
+%    \begin{macrocode}
+%<*messages>
+\ProvidesExplFile {trtmessages.code.tex} {2020/04/30} {0.1}
+  {The ~ triangletools ~ package: ~ Messages}
+%    \end{macrocode}
+%
+% We also need to declare some helpful messages that we will use later on.
+%
+% In \file{trtlinetools.code.tex}, when we find the intersection of two lines, 
+% a warning will be shown if the lines are parallel. The warning is based on 
+% |intersection-not-found|.
+%
+%    \begin{macrocode}
+\msg_new:nnnn {triangletools} {intersection-not-found}
+  {
+    Intersection ~ not ~ found.
+  }
+  {
+    You ~ told ~ me ~ to ~ find ~ the ~ intersection ~ of ~ the ~ line ~ 
+    joining ~ #1 ~ and ~ #2 ~ and ~ the ~ line ~ joining ~ #3 ~ and ~ #4, ~ 
+    however ~ these ~ lines ~ are ~ parallel ~ so ~ I ~ can't ~ find ~ any ~ 
+    intersection. ~ The ~ return ~ point ~ is ~ set ~ to ~ the ~ origin ~ 
+    (0, ~ 0).
+  }
+%    \end{macrocode}
+%
+% When the barycentric coordinate system, implemented in 
+% \file{trtbarycentric.code.tex}, is used, it should already be initialized, 
+% \emph{i.e.} we should already know what are the three ``anchor'' coordinates 
+% of the system. If the coordinate system is not yet initialized, this error 
+% will be shown.
+%
+%    \begin{macrocode}
+\msg_new:nnnn {triangletools} {uninitialized}
+  {
+    Barycentric ~ coordinate ~ system ~ not ~ initialized.
+  }
+  {
+    You ~ have ~ not ~ initialized ~ the ~ three ~ anchor ~ points ~ for ~ 
+    the ~ coordinate ~ system. ~ Please ~ initialize ~ the ~ points ~ 
+    before ~ using ~ the ~ `bc3' ~ coordinate ~ system.
+  }
+%    \end{macrocode}
+%
+% We do let the user to find triangle center $X_i$ for any $i$. However this 
+% package obviously can't implement all points in ETC (in fact, I will implement 
+% only some most important points). An error will be raised if the user tries to 
+% use an unimplemented point.
+%
+%    \begin{macrocode}
+\msg_new:nnnn {triangletools} {center-not-found}
+  {
+    Triangle ~ center ~ not ~ found.
+  }
+  {
+    I ~ can't ~ find ~ the ~ requested ~ triangle ~ center, ~ because ~ 
+    point ~ X(#1) ~ is ~ not ~ yet ~ implemented ~ in ~ the ~ triangletools ~ 
+    package. ~ Try ~ to ~ construct ~ it ~ yourself.
+  }
+%</messages>
+%    \end{macrocode}
+%
+% \subsection{The backend layer}
+% \subsubsection{The line tools utility}
+%    \begin{macrocode}
+%<*linetools>
+\ProvidesExplFile {trtlinetools.code.tex} {2020/04/30} {0.1}
+  {The ~ triangletools ~ package: ~ Utilities ~ for ~ lines}
+%    \end{macrocode}
+% In |trtlinetools.code.tex|, we will implement the necessary functions to 
+% handle lines in a mathematical way.
+%
+% Firstly, let's declare some internal variables that we will use later.
+%
+% \begin{variable}{
+%   \l_@@_lt_pointi_x_fp, \l_@@_lt_pointi_y_fp,
+%   \l_@@_lt_pointii_x_fp, \l_@@_lt_pointii_y_fp
+% }
+% These variables are used to store coordinates of the two vertices of a 
+% segment.
+%    \begin{macrocode}
+\fp_new:N \l_@@_lt_pointi_x_fp
+\fp_new:N \l_@@_lt_pointi_y_fp
+\fp_new:N \l_@@_lt_pointii_x_fp
+\fp_new:N \l_@@_lt_pointii_y_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{
+%   \l_@@_lt_linei_a_fp, \l_@@_lt_linei_b_fp, \l_@@_lt_linei_c_fp, 
+%   \l_@@_lt_lineii_a_fp, \l_@@_lt_lineii_b_fp, \l_@@_lt_lineii_c_fp
+% }
+% We will store the line equation under the format of $ax+by=c$, because this is 
+% the most generic format. These six variables will do that job.
+%
+%    \begin{macrocode}
+\fp_new:N \l_@@_lt_linei_a_fp
+\fp_new:N \l_@@_lt_linei_b_fp
+\fp_new:N \l_@@_lt_linei_c_fp
+\fp_new:N \l_@@_lt_lineii_a_fp
+\fp_new:N \l_@@_lt_lineii_b_fp
+\fp_new:N \l_@@_lt_lineii_c_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_lt_tmp_fp, \l_@@_lt_tmpa_fp, \l_@@_lt_tmpb_fp}
+% Some additional temporary variables.
+%    \begin{macrocode}
+\fp_new:N \l_@@_lt_tmp_fp
+\fp_new:N \l_@@_lt_tmpa_fp
+\fp_new:N \l_@@_lt_tmpb_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\trt_lt_get_line_equation:nnNNN}
+% Find the equation of the line passing |#1| and |#2|, and store the values of 
+% $a,b,c$ found to |#3|, |#4| and |#5|, which are floating point variables, 
+% respectively.
+%    \begin{macrocode}
+\cs_new:Npn \trt_lt_get_line_equation:nnNNN #1 #2 #3 #4 #5
+  {
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#1}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#1}{center}}
+    \fp_set:Nn \l_@@_i_pointi_x_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_i_pointi_y_fp {\trt@tmp@ii}
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#2}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#2}{center}}
+    \fp_set:Nn \l_@@_i_pointii_x_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_i_pointii_y_fp {\trt@tmp@ii}
+%    \end{macrocode}
+% There is a simple hack here. We have $ax_1+by_1=c=ax_2+by_2$, which is 
+% equivalent to $a(x_1-x_2)=b(y_2-y_1)$. Therefore $a=y_2-y_1$ and $b=x_1-x_2$ 
+% can be used.
+%    \begin{macrocode}
+    \fp_set:Nn #3
+      {
+        \l_@@_i_pointii_y_fp - \l_@@_i_pointi_y_fp
+      }
+    \fp_set:Nn #4
+      {
+        \l_@@_i_pointi_x_fp - \l_@@_i_pointii_x_fp
+      }
+    \fp_set:Nn #5
+      {
+        #3 * \l_@@_i_pointi_x_fp + #4 * \l_@@_i_pointi_y_fp
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\trt_lt_get_intersection_line:NNNNNNNN}
+% Find the intersection of two lines with given equation, after that store the 
+% intersection coordinate to floating point variables |#7| and |#8|.
+%    \begin{macrocode}
+\cs_new:Npn \trt_lt_get_intersection_line:NNNNNNNN #1 #2 #3 #4 #5 #6 #7 #8
+  {
+    \fp_set:Nn \l_@@_lt_tmp_fp { #1 * #5 - #4 * #2 }
+%    \end{macrocode}
+% If \cs{l_@@_lt_tmp_fp} is zero, the two lines are parallel. In that case, we 
+% will issue a warning, and set the intersection coordinate to $(0,0)$. 
+% Otherwise, continue computing as usual.
+%    \begin{macrocode}
+    \fp_compare:nNnTF {\l_@@_lt_tmp_fp} = {0}
+      {
+        \msg_warning:nnnnnn {triangletools} {intersection-not-found}
+          {(#1)} {(#2)} {(#3)} {(#4)}
+        \fp_set:Nn #7 {0}
+        \fp_set:Nn #8 {0}
+      }
+      {
+        \fp_set:Nn #7 { ( #5 * #3 - #2 * #6 ) / \l_@@_lt_tmp_fp }
+        \fp_set:Nn #8 { ( #1 * #6 - #4 * #3 ) / \l_@@_lt_tmp_fp }
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\trt_lt_get_intersection_coordinate:nnnnNN}
+% Let's generalize \cs{trt_lt_get_intersection_line:NNNNNNNN}. The following 
+% function finds the intersection of two lines between |#1|, |#2| and |#3|, 
+% |#4|, and store the coordinates to |#5| and |#6|. We still use floating 
+% point variables here, as they might be useful in the future.
+%    \begin{macrocode}
+\cs_new:Npn \trt_lt_get_intersection_coordinate:nnnnNN #1 #2 #3 #4 #5 #6
+  {
+    \trt_lt_get_line_equation:nnNNN {#1} {#2} 
+      \l_@@_lt_linei_a_fp \l_@@_lt_linei_b_fp \l_@@_lt_linei_c_fp
+    \trt_lt_get_line_equation:nnNNN {#3} {#4} 
+      \l_@@_lt_lineii_a_fp \l_@@_lt_lineii_b_fp \l_@@_lt_lineii_c_fp
+    \trt_lt_get_intersection_line:NNNNNNNN
+      \l_@@_lt_linei_a_fp \l_@@_lt_linei_b_fp \l_@@_lt_linei_c_fp
+      \l_@@_lt_lineii_a_fp \l_@@_lt_lineii_b_fp \l_@@_lt_lineii_c_fp
+      #5 #6
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_lt_return_intersection:nnnnn}
+% Now, let's \tikzname ify the above function! Note that I use |overlay| because 
+% I don't want to affect the bounding box. The user can use the returned 
+% coordinate to change the bounding box in whatever way he wants to.
+%    \begin{macrocode}
+\cs_new:Npn \@@_lt_return_intersection:nnnnn #1 #2 #3 #4 #5
+  {
+    \trt_lt_get_intersection_coordinate:nnnnNN {#1} {#2} {#3} {#4}
+      \l_@@_lt_tmpa_fp \l_@@_lt_tmpb_fp
+    \coordinate[overlay] (#5) at 
+      (\fp_to_dim:N \l_@@_lt_tmpa_fp, \fp_to_dim:N \l_@@_lt_tmpb_fp);
+  }
+%    \end{macrocode}
+% \end{macro}
+% Next, let's make some implementation regarding perpendicularity.
+%
+% \begin{macro}{\trt_lt_get_perpendicular_equation:nNNNNNN}
+% This function finds the equation of the line passing point and being 
+% perpendicular to a line having a given equation. The task is not quite 
+% complicated: note that lines $ax+by=c$ and $ay-bx=d$ are perpendicular.
+%    \begin{macrocode}
+\cs_new:Npn \trt_lt_get_perpendicular_equation:nNNNNNN #1 #2 #3 #4 #5 #6 #7
+  {
+    \fp_set:Nn #5 { -#3 }
+    \fp_set:Nn #6 { #2 }
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#1}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#1}{center}}
+    \fp_set:Nn \l_@@_lt_tmpa_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_lt_tmpb_fp {\trt@tmp@ii}
+    \fp_set:Nn #7 { #5 * \l_@@_lt_tmpa_fp + #6 * \l_@@_lt_tmpb_fp }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\trt_lt_get_perpendicular_coordinate:nnnNN}
+% The base implemented, let's find the foot of perpendicular from a point to 
+% a segment.
+%    \begin{macrocode}
+\cs_new:Npn \trt_lt_get_perpendicular_coordinate:nnnNN #1 #2 #3 #4 #5
+  {
+    \trt_lt_get_line_equation:nnNNN {#2} {#3} 
+      \l_@@_lt_linei_a_fp \l_@@_lt_linei_b_fp \l_@@_lt_linei_c_fp
+
+    \trt_lt_get_perpendicular_equation:nNNNNNN {#1} 
+      \l_@@_lt_linei_a_fp \l_@@_lt_linei_b_fp \l_@@_lt_linei_c_fp
+      \l_@@_lt_lineii_a_fp \l_@@_lt_lineii_b_fp \l_@@_lt_lineii_c_fp
+
+    \trt_lt_get_intersection_line:NNNNNNNN
+      \l_@@_lt_linei_a_fp \l_@@_lt_linei_b_fp \l_@@_lt_linei_c_fp
+      \l_@@_lt_lineii_a_fp \l_@@_lt_lineii_b_fp \l_@@_lt_lineii_c_fp
+      #4 #5
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\@@_lt_return_perpendicular_coordinate:nnnn}
+% This is just a wrapper of \cs{trt_lt_get_perpendicular_coordinate:nnnNN}.
+%    \begin{macrocode}
+\cs_new:Npn \@@_lt_return_perpendicular_coordinate:nnnn #1 #2 #3 #4
+  {
+    \trt_lt_get_perpendicular_coordinate:nnnNN {#1} {#2} {#3} 
+      \l_@@_lt_tmpa_fp \l_@@_lt_tmpb_fp
+    \coordinate[overlay] (#4) at 
+      (\fp_to_dim:N \l_@@_lt_tmpa_fp, \fp_to_dim:N \l_@@_lt_tmpb_fp);
+  }
+%</linetools>
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{The barycentric coordinate system utility}
+%    \begin{macrocode}
+%<*barycentric>
+\ProvidesExplFile {trtbarycentric.code.tex} {2020/04/30} {0.1}
+  {
+    The ~ triangletools ~ package: ~ Utilities ~ for ~ the ~ barycentric ~ 
+    coordinate ~ system.
+  }
+%    \end{macrocode}
+% In \file{trtbarycentric.code.tex}, we will implement the three-point 
+% barycentric coordinate system, which is essential in constructing many 
+% special points in a triangle.^^A TODO: n points?
+%
+% \begin{variable}{
+%   \l_@@_bc_anchor_ix_fp, \l_@@_bc_anchor_iy_fp,
+%   \l_@@_bc_anchor_iix_fp, \l_@@_bc_anchor_iiy_fp,
+%   \l_@@_bc_anchor_iiix_fp, \l_@@_bc_anchor_iiiy_fp
+% }
+% We use six variables to store the `anchors' of the barycentric 
+% coordinate system.
+%    \begin{macrocode}
+\fp_new:N \l_@@_bc_anchor_ix_fp
+\fp_new:N \l_@@_bc_anchor_iy_fp
+\fp_new:N \l_@@_bc_anchor_iix_fp
+\fp_new:N \l_@@_bc_anchor_iiy_fp
+\fp_new:N \l_@@_bc_anchor_iiix_fp
+\fp_new:N \l_@@_bc_anchor_iiiy_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{
+%   \l_@@_bc_lambda_i_fp, \l_@@_bc_lambda_ii_fp, \l_@@_bc_lambda_iii_fp
+% }
+% We use these variables to store the user input coordinate. Note that our 
+% system is a three-point one, hence exactly three number is required.
+%
+% Why lambda $\lambda$? Well, I don't know. Wikipedia uses that, so I do the 
+% same.
+%    \begin{macrocode}
+\fp_new:N \l_@@_bc_lambda_i_fp
+\fp_new:N \l_@@_bc_lambda_ii_fp
+\fp_new:N \l_@@_bc_lambda_iii_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_bc_initialized_bool}
+% We need to guard against using the system before initializing. This boolean 
+% variable does that job: if it is set to |false| (default), do nothing.
+%    \begin{macrocode}
+\bool_new:N \l_@@_bc_initialized_bool
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_bc_tmp_fp}
+% A temporary variable.
+%    \begin{macrocode}
+\fp_new:N \l_@@_bc_tmp_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\@@_bc_initialize:nnn}
+% Initialize the barycentric coordinate system. This is the only place where 
+% \cs{l_@@_bc_initialized_bool} can be set to true, so this function must be 
+% executed before everything else in this file.
+%    \begin{macrocode}
+\cs_new:Npn \@@_bc_initialize:nnn #1 #2 #3
+  {
+    \bool_set_true:N \l_@@_bc_initialized_bool
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#1}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#1}{center}}
+    \fp_set:Nn \l_@@_bc_anchor_ix_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_bc_anchor_iy_fp {\trt@tmp@ii}
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#2}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#2}{center}}
+    \fp_set:Nn \l_@@_bc_anchor_iix_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_bc_anchor_iiy_fp {\trt@tmp@ii}
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#3}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#3}{center}}
+    \fp_set:Nn \l_@@_bc_anchor_iiix_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_bc_anchor_iiiy_fp {\trt@tmp@ii}
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{bc3}
+% The |bc3| coordinate system implementation. We will guard against using it 
+% when \cs{@@_bc_initialize:nnn} is not yet executed -- in that case, 
+% |uninitialized| error will be raised.
+%
+% We will receive arguments of |bc3| as |#1,#2,#3|, so a simple parser is 
+% needed. All interesting things will be done with that parser.
+%
+%    \begin{macrocode}
+\tikzdeclarecoordinatesystem {bc3}
+  {
+    \bool_if:NTF \l_@@_bc_initialized_bool
+      {
+        \@@_bc_parse:w #1 \q_stop
+      }
+      {
+        \msg_error:nn {triangletools} {uninitialized}
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{\@@_bc_parse:w}
+% This is the parser we use for |bc3|.
+%
+% The conversion from $\lambda_i$ to the Cartesian format is pretty simple, 
+% we have $x=\lambda_1x_1+\lambda_2x_2+\lambda_3x_3$ and the formula for $y$ is 
+% similar. However, first we have to change the value of $\lambda_i$ so that 
+% $\lambda_1+\lambda_2+\lambda_3=1$.
+%    \begin{macrocode}
+\cs_new:Npn \@@_bc_parse:w #1,#2,#3 \q_stop
+  {
+    \fp_set:Nn \l_@@_bc_tmp_fp { (#1) + (#2) + (#3) }
+    \fp_set:Nn \l_@@_bc_lambda_i_fp { (#1) / (\l_@@_bc_tmp_fp) }
+    \fp_set:Nn \l_@@_bc_lambda_ii_fp { (#2) / (\l_@@_bc_tmp_fp) }
+    \fp_set:Nn \l_@@_bc_lambda_iii_fp { (#3) / (\l_@@_bc_tmp_fp) }
+    \fp_set:Nn \l_@@_tmp_a_fp
+      {
+        \l_@@_bc_anchor_ix_fp * \l_@@_bc_lambda_i_fp + 
+        \l_@@_bc_anchor_iix_fp * \l_@@_bc_lambda_ii_fp + 
+        \l_@@_bc_anchor_iiix_fp * \l_@@_bc_lambda_iii_fp
+      }
+    \fp_set:Nn \l_@@_tmp_b_fp
+      {
+        \l_@@_bc_anchor_iy_fp * \l_@@_bc_lambda_i_fp + 
+        \l_@@_bc_anchor_iiy_fp * \l_@@_bc_lambda_ii_fp + 
+        \l_@@_bc_anchor_iiiy_fp * \l_@@_bc_lambda_iii_fp
+      }
+%    \end{macrocode}
+% Floating point variables are not \TeX\ dimensions, hence \cs{fp_to_dim:N} is 
+% used.
+%    \begin{macrocode}
+    \pgf@x = \fp_to_dim:N \l_@@_tmp_a_fp
+    \pgf@y = \fp_to_dim:N \l_@@_tmp_b_fp
+  }
+%</barycentric>
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{Distance-finding utility}
+%
+%    \begin{macrocode}
+%<*distance>
+\ProvidesExplFile {trtdistance.code.tex} {2020/04/30} {0.1}
+  {The ~ triangletools ~ package: ~ Utilities ~ for ~ 2d ~ distance}
+%    \end{macrocode}
+%
+% This file implements functions to find the distance between (2d) \tikzname\ 
+% coordinates.
+%
+% \begin{variable}{
+%   \l_@@_d_pointi_x_fp, \l_@@_d_pointi_y_fp, 
+%   \l_@@_d_pointii_x_fp, \l_@@_d_pointii_y_fp
+% }
+% These variables are used to store the coordinates of the points between which 
+% we are finding the distance.
+%    \begin{macrocode}
+\fp_new:N \l_@@_d_pointi_x_fp
+\fp_new:N \l_@@_d_pointii_x_fp
+\fp_new:N \l_@@_d_pointi_y_fp
+\fp_new:N \l_@@_d_pointii_y_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{macro}{\trt_distance:nnN}
+% Find the distance between \tikzname\ coordinates |#1| and |#2|.
+%    \begin{macrocode}
+\cs_new:Npn \trt_distance:nnN #1 #2 #3
+  {
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#1}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#1}{center}}
+    \fp_set:Nn \l_@@_d_pointi_x_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_d_pointi_y_fp {\trt@tmp@ii}
+    \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#2}{center}}
+    \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#2}{center}}
+    \fp_set:Nn \l_@@_d_pointii_x_fp {\trt@tmp@i}
+    \fp_set:Nn \l_@@_d_pointii_y_fp {\trt@tmp@ii}
+    \fp_set:Nn #3
+      {
+        sqrt((
+          (\l_@@_d_pointi_x_fp - \l_@@_d_pointii_x_fp) * 
+          (\l_@@_d_pointi_x_fp - \l_@@_d_pointii_x_fp)
+        ) + (
+          (\l_@@_d_pointi_y_fp - \l_@@_d_pointii_y_fp) * 
+          (\l_@@_d_pointi_y_fp - \l_@@_d_pointii_y_fp)
+        ))
+      }
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\trt_distance_triangle:nnnNNN}
+% We mainly need the above function to find the side length in a triangle. Let's 
+% create a function that do so automatically.
+%    \begin{macrocode}
+\cs_new:Npn \trt_distance_triangle:nnnNNN #1 #2 #3 #4 #5 #6
+  {
+    \trt_distance:nnN {#2} {#3} #4
+    \trt_distance:nnN {#3} {#1} #5
+    \trt_distance:nnN {#1} {#2} #6
+  }
+%</distance>
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{Construction of triangle centers}
+%
+%    \begin{macrocode}
+%<*specialpoints>
+\ProvidesExplFile {trtspecialpoints.code.tex} {2020/04/30} {0.1}
+  {The ~ triangletools ~ package: ~ Triangle ~ center ~ construction}
+%    \end{macrocode}
+%
+% This file will use the utility implemented in the above sections to find 
+% some most important triangle centers described in the ETC.
+%
+% \begin{variable}{\l_@@_sp_a_fp, \l_@@_sp_b_fp, \l_@@_sp_c_fp}
+% We will need the side length of the triangle for some centers.
+%    \begin{macrocode}
+\fp_new:N \l_@@_sp_a_fp
+\fp_new:N \l_@@_sp_b_fp
+\fp_new:N \l_@@_sp_c_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{
+%   \l_@@_sp_coordinatei_x_fp, \l_@@_sp_coordinatei_y_fp,
+%   \l_@@_sp_coordinateii_x_fp, \l_@@_sp_coordinateii_y_fp,
+%   \l_@@_sp_coordinateiii_x_fp, \l_@@_sp_coordinateiii_y_fp,
+%   \l_@@_sp_linei_a_fp, \l_@@_sp_linei_b_fp, \l_@@_sp_linei_c_fp,
+%   \l_@@_sp_lineii_a_fp, \l_@@_sp_lineii_b_fp, \l_@@_sp_lineii_c_fp
+% }
+% These variables may also be helpful for triangle centers for which a simple 
+% formula doesn't exist, e.g. the circumcenter.
+%    \begin{macrocode}
+\fp_new:N \l_@@_sp_coordinatei_x_fp
+\fp_new:N \l_@@_sp_coordinatei_y_fp
+\fp_new:N \l_@@_sp_coordinateii_x_fp
+\fp_new:N \l_@@_sp_coordinateii_y_fp
+\fp_new:N \l_@@_sp_coordinateiii_x_fp
+\fp_new:N \l_@@_sp_coordinateiii_y_fp
+\fp_new:N \l_@@_sp_linei_a_fp
+\fp_new:N \l_@@_sp_linei_b_fp
+\fp_new:N \l_@@_sp_linei_c_fp
+\fp_new:N \l_@@_sp_lineii_a_fp
+\fp_new:N \l_@@_sp_lineii_b_fp
+\fp_new:N \l_@@_sp_lineii_c_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \begin{variable}{\l_@@_sp_tmpa_fp, \l_@@_sp_tmpb_fp, \l_@@_sp_tmpc_fp}
+% Some additional temporary variables.
+%    \begin{macrocode}
+\fp_new:N \l_@@_sp_tmpa_fp
+\fp_new:N \l_@@_sp_tmpb_fp
+\fp_new:N \l_@@_sp_tmpc_fp
+%    \end{macrocode}
+% \end{variable}
+%
+% \subsubsection{$X_1$ -- The incenter}
+% Each center will have a function taking four arguments. The first three 
+% arguments are the \tikzname\ coordinates of the triangle vertices; the last argument 
+% is the name of the return \tikzname\ coordinate.
+%
+% To prevent conflict between these sister functions when they are used together, 
+% I put each of them inside a \TeX\ group.
+%
+% \begin{macro}{\trt_sp_incenter:nnnn}
+% Return the incenter. It is based on the barycentric coordinate of the incenter, 
+% $(a,b,c)$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_incenter:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n {\l_@@_sp_a_fp},
+        \fp_eval:n {\l_@@_sp_b_fp},
+        \fp_eval:n {\l_@@_sp_c_fp}) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \begin{macro}{\trt_sp_excenter:nnnn}
+% Return the excenter of the triangle, with respect to vertex |#1|. This center 
+% is just a derivation of the incenter; also it is not unique, so it is not 
+% assigned a number. Barycentric coordinate of the excenter is $(-a,b,c)$, where 
+% $a$ is the length of the side joining |#2| and |#3|.
+%
+% Note that this is the only function in this series in which argument order is 
+% important.
+%
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_excenter:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n {- \l_@@_sp_a_fp},
+        \fp_eval:n {\l_@@_sp_b_fp},
+        \fp_eval:n {\l_@@_sp_c_fp}) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsubsection{$X_2$ -- The centroid}
+% \begin{macro}{\trt_sp_centroid:nnnn}
+% This is perhaps the simplest of all. Barycentric coordinate: $(1,1,1)$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_centroid:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \path[overlay] (bc3 ~ cs \c_colon_str 1, 1, 1) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_3$ -- The circumcenter}
+% \begin{macro}{\trt_sp_circumcenter:nnnn}
+% This is opposite to $X_2$: perhaps this is the most complex of all. The 
+% barycentric coordinate formula is not simple enough for me, so I construct 
+% this point purely manually: find the intersection of the perpendicular 
+% bisectors.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_circumcenter:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+%    \end{macrocode}
+% Firstly, let's store the coordinate of the vertices.
+%    \begin{macrocode}
+      \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#1}{center}}
+      \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#1}{center}}
+      \fp_set:Nn \l_@@_sp_coordinatei_x_fp {\trt@tmp@i}
+      \fp_set:Nn \l_@@_sp_coordinatei_y_fp {\trt@tmp@ii}
+      \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#2}{center}}
+      \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#2}{center}}
+      \fp_set:Nn \l_@@_sp_coordinateii_x_fp {\trt@tmp@i}
+      \fp_set:Nn \l_@@_sp_coordinateii_y_fp {\trt@tmp@ii}
+      \pgfextractx {\trt@tmp@i} {\pgfpointanchor{#3}{center}}
+      \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{#3}{center}}
+      \fp_set:Nn \l_@@_sp_coordinateiii_x_fp {\trt@tmp@i}
+      \fp_set:Nn \l_@@_sp_coordinateiii_y_fp {\trt@tmp@ii}
+%    \end{macrocode}
+% Now, let's change point |#2| to the midpoint between |#1| and |#2|, and do the 
+% same for |#3|.
+%    \begin{macrocode}
+      \fp_set:Nn \l_@@_sp_coordinateii_x_fp
+        {
+          (\l_@@_sp_coordinatei_x_fp + \l_@@_sp_coordinateii_x_fp) / 2
+        }
+      \fp_set:Nn \l_@@_sp_coordinateii_y_fp
+        {
+          (\l_@@_sp_coordinatei_y_fp + \l_@@_sp_coordinateii_y_fp) / 2
+        }
+      \coordinate[overlay] (trt@tmp@ii) at (
+        \fp_to_dim:N \l_@@_sp_coordinateii_x_fp, 
+        \fp_to_dim:N \l_@@_sp_coordinateii_y_fp);
+      \fp_set:Nn \l_@@_sp_coordinateiii_x_fp
+        {
+          (\l_@@_sp_coordinatei_x_fp + \l_@@_sp_coordinateiii_x_fp) / 2
+        }
+      \fp_set:Nn \l_@@_sp_coordinateiii_y_fp
+        {
+          (\l_@@_sp_coordinatei_y_fp + \l_@@_sp_coordinateiii_y_fp) / 2
+        }
+      \coordinate[overlay] (trt@tmp@iii) at (
+        \fp_to_dim:N \l_@@_sp_coordinateiii_x_fp, 
+        \fp_to_dim:N \l_@@_sp_coordinateiii_y_fp);
+%    \end{macrocode}
+% All we have to do now is to find the equations of the bisectors and their 
+% intersection.
+%    \begin{macrocode}
+      \trt_lt_get_line_equation:nnNNN {#1} {#2}
+        \l_@@_sp_tmpa_fp \l_@@_sp_tmpb_fp \l_@@_sp_tmpc_fp
+      \trt_lt_get_perpendicular_equation:nNNNNNN {trt@tmp@ii}
+        \l_@@_sp_tmpa_fp \l_@@_sp_tmpb_fp \l_@@_sp_tmpc_fp
+        \l_@@_sp_linei_a_fp \l_@@_sp_linei_b_fp \l_@@_sp_linei_c_fp
+      \trt_lt_get_line_equation:nnNNN {#1} {#3}
+        \l_@@_sp_tmpa_fp \l_@@_sp_tmpb_fp \l_@@_sp_tmpc_fp
+      \trt_lt_get_perpendicular_equation:nNNNNNN {trt@tmp@iii}
+        \l_@@_sp_tmpa_fp \l_@@_sp_tmpb_fp \l_@@_sp_tmpc_fp
+        \l_@@_sp_lineii_a_fp \l_@@_sp_lineii_b_fp \l_@@_sp_lineii_c_fp
+      \trt_lt_get_intersection_line:NNNNNNNN
+        \l_@@_sp_linei_a_fp \l_@@_sp_linei_b_fp \l_@@_sp_linei_c_fp
+        \l_@@_sp_lineii_a_fp \l_@@_sp_lineii_b_fp \l_@@_sp_lineii_c_fp
+        \l_@@_sp_tmpa_fp \l_@@_sp_tmpb_fp
+      \coordinate[overlay] (#4) at (
+        \fp_to_dim:N \l_@@_sp_tmpa_fp, \fp_to_dim:N \l_@@_sp_tmpb_fp);
+    \group_end:
+  }
+%    \end{macrocode}
+% Quite surprisingly, the function is still very fast after all this. On my 
+% machine it never exceeds 10ms in execution time.
+% \end{macro}
+% \subsubsection{$X_4$ -- The orthocenter}
+% \begin{macro}{\trt_sp_orthocenter:nnnn}
+% Return the orthocenter of the triangle. This point is also constructed 
+% manually instead of using a proved formula. However, the utilities help 
+% making the construction look very simple.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_orthocenter:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_lt_return_perpendicular_coordinate:nnnn {#1} {#2} {#3} {trt@tmp@i}
+      \@@_lt_return_perpendicular_coordinate:nnnn {#2} {#1} {#3} {trt@tmp@ii}
+      \@@_lt_return_intersection:nnnnn
+        {#1} {trt@tmp@i} {#2} {trt@tmp@ii} {#4}
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_5$ -- The nine-point center}
+% \begin{macro}{\trt_sp_ninepointcenter:nnnn}
+% Return the center of the nine-point circle.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_ninepointcenter:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+%    \end{macrocode}
+% $X_5$ is is the midpoint of $X_3$ and $X_4$. Therefore, for simplicity, 
+% $X_3$ and $X_4$ are constructed first. This causes some run-time overhead, 
+% however the overall execution time is still below 15ms, which is, in my 
+% opinion, still good.
+%
+% Note that we already used |trt@tmp@i| and |trt@tmp@ii| coordinates in the 
+% construction of $X_3$ and $X_4$, so to prevent conflict, |trt@tmp@iii| and 
+% |trt@tmp@iv| are used.
+%    \begin{macrocode}
+      \trt_sp_circumcenter:nnnn {#1} {#2} {#3} {trt@tmp@iii}
+      \trt_sp_orthocenter:nnnn {#1} {#2} {#3} {trt@tmp@iv}
+      \pgfextractx {\trt@tmp@i} {\pgfpointanchor{trt@tmp@iii}{center}}
+      \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{trt@tmp@iii}{center}}
+      \fp_set:Nn \l_@@_sp_tmpa_fp {\trt@tmp@i}
+      \fp_set:Nn \l_@@_sp_tmpb_fp {\trt@tmp@ii}
+      \pgfextractx {\trt@tmp@i} {\pgfpointanchor{trt@tmp@iv}{center}}
+      \pgfextracty {\trt@tmp@ii} {\pgfpointanchor{trt@tmp@iv}{center}}
+      \fp_set:Nn \l_@@_sp_tmpa_fp { (\trt@tmp@i + \l_@@_sp_tmpa_fp) / 2 }
+      \fp_set:Nn \l_@@_sp_tmpb_fp { (\trt@tmp@ii + \l_@@_sp_tmpb_fp) / 2 }
+      \coordinate[overlay] (#4) at (\fp_to_dim:N \l_@@_sp_tmpa_fp,
+        \fp_to_dim:N \l_@@_sp_tmpb_fp);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_6$ -- The symmedian point}
+% \begin{macro}{\trt_sp_symmedian:nnnn}
+% Return the symmedian point (\emph{aka.} the Lemoine point or Grebe point). 
+% The barycentric coordinate of the point is $(a^2,b^2,c^2)$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_symmedian:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n {\l_@@_sp_a_fp * \l_@@_sp_a_fp},
+        \fp_eval:n {\l_@@_sp_b_fp * \l_@@_sp_b_fp},
+        \fp_eval:n {\l_@@_sp_c_fp * \l_@@_sp_c_fp}) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_7$ -- The Gergonne point}
+% \begin{macro}{\trt_sp_gergonne:nnnn}
+% Return the Gergonne point of the triangle. The barycentric coordinate of the 
+% point is $(\frac{1}{b+c-a},\frac{1}{c+a-b},\frac{1}{a+b-c})$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_gergonne:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n { 1/(\l_@@_sp_b_fp + \l_@@_sp_c_fp - \l_@@_sp_a_fp) },
+        \fp_eval:n { 1/(\l_@@_sp_c_fp + \l_@@_sp_a_fp - \l_@@_sp_b_fp) },
+        \fp_eval:n { 1/(\l_@@_sp_a_fp + \l_@@_sp_b_fp - \l_@@_sp_c_fp) }
+      ) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_8$ -- The Nagel point}
+% \begin{macro}{\trt_sp_nagel:nnnn}
+% Return the Nagel point. The barycentric coordinate of the point is 
+% $(b+c-a,c+a-b,a+b-c)$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_nagel:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n { \l_@@_sp_b_fp + \l_@@_sp_c_fp - \l_@@_sp_a_fp },
+        \fp_eval:n { \l_@@_sp_c_fp + \l_@@_sp_a_fp - \l_@@_sp_b_fp },
+        \fp_eval:n { \l_@@_sp_a_fp + \l_@@_sp_b_fp - \l_@@_sp_c_fp }
+      ) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_9$ -- The \emph{mittenpunkt}}
+% \begin{macro}{\trt_sp_mittenpunkt:nnnn}
+% Return the \emph{mittenpunkt} of the triangle -- its barycentric coordinate is 
+% $(a\times (b+c-a),b\times (c+a-b),c\times (a+b-c))$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_mittenpunkt:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n 
+          { 
+            \l_@@_sp_a_fp * (
+              \l_@@_sp_b_fp + \l_@@_sp_c_fp - \l_@@_sp_a_fp
+            )
+          },
+        \fp_eval:n 
+          { 
+            \l_@@_sp_b_fp * (
+              \l_@@_sp_c_fp + \l_@@_sp_a_fp - \l_@@_sp_b_fp
+            )
+          },
+        \fp_eval:n 
+          { 
+            \l_@@_sp_c_fp * (
+              \l_@@_sp_a_fp + \l_@@_sp_b_fp - \l_@@_sp_c_fp
+            )
+          }
+      ) coordinate (#4);
+    \group_end:
+  }
+%    \end{macrocode}
+% \end{macro}
+% \subsubsection{$X_{10}$ -- The Spieker point}
+% \begin{macro}{\trt_sp_spieker:nnnn}
+% Return the Spieker point. The barycentric coordinate of the point is 
+% $(b+c,c+a,a+b)$.
+%    \begin{macrocode}
+\cs_new:Npn \trt_sp_spieker:nnnn #1 #2 #3 #4
+  {
+    \group_begin:
+      \@@_bc_initialize:nnn {#1} {#2} {#3}
+      \trt_distance_triangle:nnnNNN {#1} {#2} {#3}
+        \l_@@_sp_a_fp \l_@@_sp_b_fp \l_@@_sp_c_fp
+      \path[overlay] (bc3 ~ cs \c_colon_str
+        \fp_eval:n { \l_@@_sp_b_fp + \l_@@_sp_c_fp },
+        \fp_eval:n { \l_@@_sp_c_fp + \l_@@_sp_a_fp },
+        \fp_eval:n { \l_@@_sp_a_fp + \l_@@_sp_b_fp }
+      ) coordinate (#4);
+    \group_end:
+  }
+%</specialpoints>
+%    \end{macrocode}
+% \end{macro}
+%
+% \subsection{The frontend layer}
+%    \begin{macrocode}
+%<*frontend>
+\ProvidesExplFile {trtfrontend.code.tex} {2020/04/30} {0.1}
+  {The ~ triangletools ~ package: ~ The ~ front-end ~ layer}
+%    \end{macrocode}
+%
+% The user interface of the package, which consists solely of \pkg{pgf} keys, 
+% will be implemented in this file.
+%
+% \begin{variable}{\l_@@_fr_output_name_tl}
+% Store the name of the output coordinate. Default to \verb*|trt output|.
+%    \begin{macrocode}
+\tl_new:N \l_@@_fr_output_name_tl
+\tl_set:Nn \l_@@_fr_output_name_tl {trt ~ output}
+%    \end{macrocode}
+% \end{variable}
+% \begin{variable}{\l_@@_fr_center_number_int}
+% We only provide specific key for $X_1$, $X_2$, $X_3$ and $X_4$. All other 
+% points can be referenced using a single generic key. We need to store the 
+% index of that point so that we can choose the right function for the point.
+%    \begin{macrocode}
+\int_new:N \l_@@_fr_center_number_int
+%    \end{macrocode}
+% \end{variable}
+% \begin{macro}{/tikz/trt}
+% Now it's time for the keys. They will be stored under |/tikz/triangletools| 
+% and can be accessed at |trt=|\marg{keys}.
+%    \begin{macrocode}
+\tikzset {
+  triangletools/.is ~ family,
+  trt/.code={\pgfkeys{/tikz/triangletools/.cd,#1}},
+  triangletools/.cd,
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{output name}
+% Change the output name of all returned coordinates.
+%    \begin{macrocode}
+  output ~ name/.code={
+    \tl_set:Nn \l_@@_fr_output_name_tl {#1}
+  },
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{intersection, foot of perpendicular}
+% The front-end of the line tools utility.
+%    \begin{macrocode}
+  intersection/.code ~ args={(#1)(#2)--(#3)(#4)}{
+    \@@_lt_return_intersection:nnnnn {#1} {#2} {#3} {#4} 
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+  foot ~ of ~ perpendicular/.code ~ args={(#1)--(#2)(#3)}{
+    \@@_lt_return_perpendicular_coordinate:nnnn {#1} {#2} {#3}
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{initialize barycentric}
+% The front-end of the barycentric coordinate system.
+%    \begin{macrocode}
+  initialize ~ barycentric/.code ~ args={(#1)(#2)(#3)}{
+    \@@_bc_initialize:nnn {#1} {#2} {#3}
+  },
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{incenter, excenter, centroid, circumcenter, orthocenter}
+% The front-end of the triangle centers $X_1$ to $X_4$ and the excenter.
+%    \begin{macrocode}
+  incenter/.code ~ args={(#1)(#2)(#3)}{
+    \trt_sp_incenter:nnnn {#1} {#2} {#3} 
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+  excenter/.code ~ args={(#1)(#2)(#3)}{
+    \trt_sp_excenter:nnnn {#1} {#2} {#3} 
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+  centroid/.code ~ args={(#1)(#2)(#3)}{
+    \trt_sp_centroid:nnnn {#1} {#2} {#3}
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+  circumcenter/.code ~ args={(#1)(#2)(#3)}{
+    \trt_sp_circumcenter:nnnn {#1} {#2} {#3}
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+  orthocenter/.code ~ args={(#1)(#2)(#3)}{
+    \trt_sp_orthocenter:nnnn {#1} {#2} {#3}
+      {\tl_use:N \l_@@_fr_output_name_tl}
+  },
+%    \end{macrocode}
+% \end{macro}
+% \begin{macro}{triangle center}
+% This key is used to access all centers. I don't give any centers from $X_5$ 
+% a key -- this key is necessary to construct them.
+%    \begin{macrocode}
+  triangle ~ center/.code ~ args={(#1)(#2)(#3)(#4)}{
+    \int_case:nnF {#4}
+      {
+        {1} {
+          \trt_sp_incenter:nnnn {#1} {#2} {#3} 
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {2} {
+          \trt_sp_centroid:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {3} {
+          \trt_sp_circumcenter:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {4} {
+          \trt_sp_orthocenter:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {5} {
+          \trt_sp_ninepointcenter:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {6} {
+          \trt_sp_symmedian:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {7} {
+          \trt_sp_gergonne:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {8} {
+          \trt_sp_nagel:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {9} {
+          \trt_sp_mittenpunkt:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+        {10} {
+          \trt_sp_spieker:nnnn {#1} {#2} {#3}
+            {\tl_use:N \l_@@_fr_output_name_tl}
+        }
+      }
+      {
+        \msg_error:nnn {triangletools} {center-not-found} {#4}
+      }
+  }
+}
+%</frontend>
+%    \end{macrocode}
+% \end{macro}
+%
+% \end{implementation}
+%
+% \Finale
