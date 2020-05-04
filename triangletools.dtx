@@ -1,26 +1,17 @@
 % \iffalse
 %<*driver>
 \documentclass[11pt]{l3doc}
-\usepackage[margin=1cm,left=7cm,bottom=1.5cm]{geometry}
-\usepackage[english]{babel}
-\usepackage{libertine}
-\usepackage[libertine]{newtxmath}
-\usepackage[scaled=0.75]{beramono}
-\usepackage[T1]{fontenc}
-\usepackage{lipsum}
-\usepackage{triangletools}
-\usepackage[listings]{tcolorbox}
-\usepackage{xparse}
-\definecolor{maincolor}{HTML}{6830C9}
-\hypersetup{linkcolor=maincolor}
+\ExplSyntaxOn
+\cs_set_protected:Npn \__codedoc_function_typeset:
+  {
+    \dim_zero:N \l__codedoc_trial_width_dim
+    \hcoffin_set:Nn \l__codedoc_functions_coffin { \__codedoc_typeset_functions: }
+    \dim_set:Nn \l__codedoc_trial_width_dim
+      { \box_wd:N \l__codedoc_functions_coffin }
+    \bool_set_false:N \l__codedoc_long_name_bool
+  }
+\ExplSyntaxOff
 \renewcommand\MacroLongFont{\ttfamily\small}
-\newtcblisting{codeexample}[1][]{size=minimal,
-  sidebyside gap=1cm,lefthand width=6.5cm,lower separated=false,
-  fontupper=\raggedleft,colback=white,colframe=white,
-  verbatim ignore percent,grow to left by=7cm,text side listing,
-  listing options={basicstyle=\ttfamily\small,keywordstyle=\ttfamily\small,
-  numbers=left,numberstyle=\sffamily\tiny\color{gray},stepnumber=1,numbersep=5pt},#1}
-\pgfkeys{/tcb/.cd,code only/.code={\pgfkeysalso{listing only,grow to left by=-5mm}}}
 \let\oldsyntax\syntax
 \let\oldendsyntax\endsyntax
 \renewenvironment{syntax}{^^A
@@ -30,6 +21,24 @@
   \renewcommand\oarg[1]{\texttt{[}\meta{##1}\texttt{]}}^^A
   \renewcommand\parg[1]{\texttt{(}\meta{##1}\texttt{)}}^^A
 }{\oldendsyntax}
+\usepackage{xparse}
+\usepackage[margin=1cm,left=7cm,bottom=1.5cm]{geometry}
+\usepackage[english]{babel}
+\usepackage{libertine}
+\usepackage[libertine]{newtxmath}
+\usepackage[scaled=0.75]{beramono}
+\usepackage[T1]{fontenc}
+\usepackage{triangletools}
+\usepackage[listings]{tcolorbox}
+\definecolor{maincolor}{HTML}{6830C9}
+\hypersetup{linkcolor=maincolor}
+\newtcblisting{codeexample}[1][]{size=minimal,
+  sidebyside gap=1cm,lefthand width=6.5cm,lower separated=false,
+  fontupper=\raggedleft,colback=white,colframe=white,
+  verbatim ignore percent,grow to left by=7cm,text side listing,
+  listing options={basicstyle=\ttfamily\small,keywordstyle=\ttfamily\small,
+  numbers=left,numberstyle=\sffamily\tiny\color{gray},stepnumber=1,numbersep=5pt},#1}
+\pgfkeys{/tcb/.cd,code only/.code={\pgfkeysalso{listing only,grow to left by=-5mm}}}
 \newcommand\tikzname{Ti\emph{k}Z}
 \setlength\parindent{0pt}
 \EnableCrossrefs
