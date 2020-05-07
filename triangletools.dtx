@@ -171,6 +171,7 @@
 %        (4,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={circumcenter=(a)(b)(c)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$O$};
+%  \draw (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\begin{function}{orthocenter, \trt_sp_orthocenter:nnnn}
@@ -1469,6 +1470,10 @@
 \int_new:N \l_@@_fr_center_number_int
 %    \end{macrocode}
 % \end{variable}
+%    \begin{macrocode}
+\fp_new:N \l_@@_fr_radius_fp
+\cs_gset_nopar:Npn \trtradius {}
+%    \end{macrocode}
 % \begin{macro}{/tikz/trt}
 % Now it's time for the keys. They will be stored under |/tikz/triangletools| 
 % and can be accessed at |trt=|\marg{keys}.
@@ -1526,6 +1531,9 @@
   circumcenter/.code ~ args={(#1)(#2)(#3)}{
     \trt_sp_circumcenter:nnnn {#1} {#2} {#3}
       {\tl_use:N \l_@@_fr_output_name_tl}
+    \trt_distance:nnN {\tl_use:N \l_@@_fr_output_name_tl} {#1} 
+      \l_@@_fr_radius_fp
+    \cs_gset_nopar:Npx \trtradius { \fp_to_dim:N \l_@@_fr_radius_fp }
   },
   orthocenter/.code ~ args={(#1)(#2)(#3)}{
     \trt_sp_orthocenter:nnnn {#1} {#2} {#3}
