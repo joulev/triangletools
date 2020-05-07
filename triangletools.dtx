@@ -121,6 +121,7 @@
 %        (4,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={incenter=(a)(b)(c)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$I$};
+%  \draw[maincolor] (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\begin{function}{excenter, \trt_sp_excenter:nnnn}
@@ -171,7 +172,7 @@
 %        (4,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={circumcenter=(a)(b)(c)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$O$};
-%  \draw (trt output) circle (\trtradius);
+%  \draw[maincolor] (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\begin{function}{orthocenter, \trt_sp_orthocenter:nnnn}
@@ -1517,8 +1518,12 @@
 % The front-end of the triangle centers $X_1$ to $X_4$ and the excenter.
 %    \begin{macrocode}
   incenter/.code ~ args={(#1)(#2)(#3)}{
-    \trt_sp_incenter:nnnn {#1} {#2} {#3} 
-      {\tl_use:N \l_@@_fr_output_name_tl}
+    \trt_sp_incenter:nnnn {#1} {#2} {#3} {trt@tmp@center}
+    \pgfkeysalso{foot ~ of ~ perpendicular=(trt@tmp@center)--(#1)(#2)}
+    \trt_distance:nnN {\tl_use:N \l_@@_fr_output_name_tl} {trt@tmp@center} 
+      \l_@@_fr_radius_fp
+    \cs_gset_nopar:Npx \trtradius { \fp_to_dim:N \l_@@_fr_radius_fp }
+    \coordinate (\tl_use:N \l_@@_fr_output_name_tl) at (trt@tmp@center);
   },
   excenter/.code ~ args={(#1)(#2)(#3)}{
     \trt_sp_excenter:nnnn {#1} {#2} {#3} 
