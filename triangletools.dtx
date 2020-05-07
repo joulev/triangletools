@@ -140,6 +140,7 @@
 %        (2 ,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={excenter=(a)(b)(c)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$I_a$};
+%  \draw[maincolor] (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\begin{function}{centroid, \trt_sp_centroid:nnnn}
@@ -1526,8 +1527,12 @@
     \coordinate (\tl_use:N \l_@@_fr_output_name_tl) at (trt@tmp@center);
   },
   excenter/.code ~ args={(#1)(#2)(#3)}{
-    \trt_sp_excenter:nnnn {#1} {#2} {#3} 
-      {\tl_use:N \l_@@_fr_output_name_tl}
+    \trt_sp_excenter:nnnn {#1} {#2} {#3} {trt@tmp@center}
+    \pgfkeysalso{foot ~ of ~ perpendicular=(trt@tmp@center)--(#2)(#3)}
+    \trt_distance:nnN {\tl_use:N \l_@@_fr_output_name_tl} {trt@tmp@center} 
+      \l_@@_fr_radius_fp
+    \cs_gset_nopar:Npx \trtradius { \fp_to_dim:N \l_@@_fr_radius_fp }
+    \coordinate (\tl_use:N \l_@@_fr_output_name_tl) at (trt@tmp@center);
   },
   centroid/.code ~ args={(#1)(#2)(#3)}{
     \trt_sp_centroid:nnnn {#1} {#2} {#3}
