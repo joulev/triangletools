@@ -117,6 +117,9 @@
 %  associated to it, the circle will be drawn in the code example. Currently 
 %  $X_1$, the excenter, $X_3$, $X_5$ and $X_{10}$ can change the value of 
 %  \cs{trtradius}.
+%
+%  If the macro is used before any center with a circle is constructed, an 
+%  error message will be issued.
 %\end{function}
 %\subsection{Triangle centers}\label{triangle-centers}
 %\begin{function}{incenter, \trt_sp_incenter:nnnn}
@@ -690,6 +693,22 @@
     I ~ can't ~ find ~ the ~ requested ~ triangle ~ center, ~ because ~ 
     point ~ X(#1) ~ is ~ not ~ yet ~ implemented ~ in ~ the ~ triangletools ~ 
     package. ~ Try ~ to ~ construct ~ it ~ yourself.
+  }
+%    \end{macrocode}
+%
+% We need to guard against using \cs{trtradius} before the macro stores 
+% something.
+%
+%    \begin{macrocode}
+\msg_new:nnnn {triangletools} {no-radius-found}
+  {
+    No ~ circles ~ can ~ be ~ constructed.
+  }
+  {
+    I ~ can't ~ construct ~ the ~ requested ~ circle, ~ because ~ you ~ have ~ 
+    not ~ request ~ me ~ to ~ construct ~ any ~ triangle ~ centers ~ that ~ 
+    are ~ associated ~ to ~ a ~ circle. ~ I ~ will ~ set ~ 
+    \protect\trtradius\space to ~ zero ~ now.
   }
 %</messages>
 %    \end{macrocode}
@@ -1498,7 +1517,10 @@
 % we need a floating point variable specified for that purpose.
 %    \begin{macrocode}
 \fp_new:N \l_@@_fr_radius_fp
-\cs_gset_nopar:Npn \trtradius {}
+\cs_gset_nopar:Npn \trtradius
+  {
+    \msg_error:nn {triangletools} {no-radius-found} 0pt
+  }
 %    \end{macrocode}
 % \end{variable}
 % \end{macro}
