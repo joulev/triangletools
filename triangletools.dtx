@@ -213,6 +213,7 @@
 %        (4,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={triangle center=(a)(b)(c)(5)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$X_5$};
+%  \draw[maincolor] (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\begin{function}{\trt_sp_symmedian:nnnn}
@@ -294,6 +295,7 @@
 %        (4,0) coordinate (c) -- cycle;
 %  \fill[maincolor,trt={triangle center=(a)(b)(c)(10)}] (trt output) 
 %    circle[radius=1.5pt] node[below] {$X_{10}$};
+%  \draw[maincolor] (trt output) circle (\trtradius);
 %\end{tikzpicture}
 %\end{codeexample}
 %\subsection{Other utilities}\label{utilities}
@@ -1573,6 +1575,13 @@
         {5} {
           \trt_sp_ninepointcenter:nnnn {#1} {#2} {#3}
             {\tl_use:N \l_@@_fr_output_name_tl}
+          \group_begin:
+            \@@_bc_initialize:nnn {#1} {#2} {#3}
+            \coordinate (trt@tmp@mid) at (bc3 ~ cs \c_colon_str 1,1,0);
+          \group_end:
+          \trt_distance:nnN {\tl_use:N \l_@@_fr_output_name_tl} {trt@tmp@mid} 
+            \l_@@_fr_radius_fp
+          \cs_gset_nopar:Npx \trtradius { \fp_to_dim:N \l_@@_fr_radius_fp }
         }
         {6} {
           \trt_sp_symmedian:nnnn {#1} {#2} {#3}
@@ -1591,8 +1600,19 @@
             {\tl_use:N \l_@@_fr_output_name_tl}
         }
         {10} {
-          \trt_sp_spieker:nnnn {#1} {#2} {#3}
-            {\tl_use:N \l_@@_fr_output_name_tl}
+          \trt_sp_spieker:nnnn {#1} {#2} {#3} {trt@tmp@center}
+          \group_begin:
+            \@@_bc_initialize:nnn {#1} {#2} {#3}
+            \coordinate (trt@tmp@midi)  at (bc3 ~ cs \c_colon_str 1,1,0);
+            \coordinate (trt@tmp@midii) at (bc3 ~ cs \c_colon_str 0,1,1);
+          \group_end:
+          \pgfkeysalso{
+            foot~of~perpendicular=(trt@tmp@center)--(trt@tmp@midi)(trt@tmp@midii)
+          }
+          \trt_distance:nnN {\tl_use:N \l_@@_fr_output_name_tl} {trt@tmp@center}
+            \l_@@_fr_radius_fp
+          \cs_gset_nopar:Npx \trtradius { \fp_to_dim:N \l_@@_fr_radius_fp }
+          \coordinate (\tl_use:N \l_@@_fr_output_name_tl) at (trt@tmp@center);
         }
       }
       {
