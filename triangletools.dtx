@@ -1559,20 +1559,16 @@
     \int_case:nnF {#4}
       {
         {1} {
-          \trt_sp_incenter:nnnn {#1} {#2} {#3} 
-            {\tl_use:N \l_@@_fr_output_name_tl}
+          \pgfkeysalso{incenter=(#1)(#2)(#3)}
         }
         {2} {
-          \trt_sp_centroid:nnnn {#1} {#2} {#3}
-            {\tl_use:N \l_@@_fr_output_name_tl}
+          \pgfkeysalso{centroid=(#1)(#2)(#3)}
         }
         {3} {
-          \trt_sp_circumcenter:nnnn {#1} {#2} {#3}
-            {\tl_use:N \l_@@_fr_output_name_tl}
+          \pgfkeysalso{circumcenter=(#1)(#2)(#3)}
         }
         {4} {
-          \trt_sp_orthocenter:nnnn {#1} {#2} {#3}
-            {\tl_use:N \l_@@_fr_output_name_tl}
+          \pgfkeysalso{orthocenter=(#1)(#2)(#3)}
         }
         {5} {
           \trt_sp_ninepointcenter:nnnn {#1} {#2} {#3}
