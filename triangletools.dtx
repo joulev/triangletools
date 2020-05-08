@@ -100,7 +100,25 @@
 %
 %  This key is used to access all other keys in the user interface.
 %\end{function}
-%\subsection{Triangle centers}
+%\subsection{Circles associated with triangle centers}
+%\begin{function}{\trtradius}
+%  Some points, for example the incenter and the circumcenter, are associated 
+%  with some special circles. If the requested point is associated with a circle, 
+%  this macro stores the radius of that circle, in points (|pt|).
+%
+%  This macro is assigned \emph{globally} every time a point is requested. 
+%  Therefore, it stores the radius related to the last point that has a circle.
+%  So beware that while it always gives you some values once you have drawn 
+%  such points, that value might not be what you want. It is recommended to 
+%  use this macro \emph{immediately after} the execution of triangle center 
+%  keys.
+%
+%  In Section \ref{triangle-centers}, if a point has a \cs{trtradius} 
+%  associated to it, the circle will be drawn in the code example. Currently 
+%  $X_1$, the excenter, $X_3$, $X_5$ and $X_{10}$ can change the value of 
+%  \cs{trtradius}.
+%\end{function}
+%\subsection{Triangle centers}\label{triangle-centers}
 %\begin{function}{incenter, \trt_sp_incenter:nnnn}
 %  \begin{syntax}
 %    /tikz/triangletools/incenter=\parg{coor 1}\parg{coor 2}\parg{coor 3}
@@ -1474,10 +1492,16 @@
 \int_new:N \l_@@_fr_center_number_int
 %    \end{macrocode}
 % \end{variable}
+% \begin{macro}{\trtradius}
+% \begin{variable}{\l_@@_fr_radius_fp}
+% This macro will store the radius if a circle is associated. Of course firstly 
+% we need a floating point variable specified for that purpose.
 %    \begin{macrocode}
 \fp_new:N \l_@@_fr_radius_fp
 \cs_gset_nopar:Npn \trtradius {}
 %    \end{macrocode}
+% \end{variable}
+% \end{macro}
 % \begin{macro}{/tikz/trt}
 % Now it's time for the keys. They will be stored under |/tikz/triangletools| 
 % and can be accessed at |trt=|\marg{keys}.
