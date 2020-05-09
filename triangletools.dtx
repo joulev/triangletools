@@ -135,7 +135,7 @@
 %  to |trt output| by default. You can change that using |output name|, see 
 %  Section \ref{customization}.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -154,7 +154,7 @@
 %  internal angular bisector at \meta{coor 1}. Note that the order matters: 
 %  |excenter=(a)(b)(c)| is \emph{different} from |excenter=(b)(a)(c)|.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (.5,3) coordinate (a) -- 
 %        (0 ,0) coordinate (b) -- 
@@ -171,7 +171,7 @@
 %  \end{syntax}
 %  Find the centroid $X_2$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -187,7 +187,7 @@
 %  \end{syntax}
 %  Find the circumcenter $X_3$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -204,7 +204,7 @@
 %  \end{syntax}
 %  Find the orthocenter $X_4$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -227,7 +227,7 @@
 %  \end{syntax}
 %  Find the nine-point center $X_5$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -245,7 +245,7 @@
 %  Find the symmedian point $X_6$ (\emph{aka.} the Lemoine point or Grebe point) 
 %  of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -261,7 +261,7 @@
 %  \end{syntax}
 %  Find the Gergonne point $X_7$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -277,7 +277,7 @@
 %  \end{syntax}
 %  Find the Nagel point $X_8$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -293,7 +293,7 @@
 %  \end{syntax}
 %  Find the \emph{mittenpunkt} $X_9$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -309,7 +309,7 @@
 %  \end{syntax}
 %  Find the Spieker center $X_{10}$ of the triangle.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
@@ -334,7 +334,7 @@
 %  If the two lines are parallel, |trt output| is set to |(0,0)|, and the 
 %  package will report a warning.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (0,0) coordinate (a) -- (0,1) coordinate (b);
 %  \draw (1,0) coordinate (c) -- (.5,1) coordinate (d);
@@ -352,7 +352,7 @@
 %  Find the foot of perpendicular of point \meta{coor 1} to the line joining 
 %  \meta{coor 2} and \meta{coor 3}.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (0,0) coordinate (b) -- (4,1) coordinate (c);
 %  \fill (1,2) circle (1.5pt) coordinate (a);
@@ -374,7 +374,7 @@
 %  will produce one of such solution. While the solution is likely to be the 
 %  simplest of all possible ones, this is not guaranteed.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \coordinate (a) at (1,0);
 %  \coordinate (b) at (4,1);
@@ -428,7 +428,7 @@
 %
 %  This is the base of |intersection|.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (0,0) coordinate (a) -- (0,1) coordinate (b);
 %  \draw (1,0) coordinate (c) -- (.5,1) coordinate (d);
@@ -454,7 +454,7 @@
 %  This function finds the line of equation $a_2x+b_2y=c_2$ that passes 
 %  coordinate \meta{coor 1} and is perpendicular to $a_1x+b_1y=c_1$.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (-1,0) coordinate (b) node[left] {$(-1,0)$} -- 
 %        (3,1)  coordinate (c) node[right] {$(3,1)$};
@@ -521,7 +521,7 @@
 %  The sum of \meta{l1}, \meta{l2} and \meta{l3} is not necessarily $1$ -- 
 %  the package will take care of that internally.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \draw (1,3) coordinate (a) --
 %        (0,0) coordinate (b) --
@@ -542,7 +542,7 @@
 %  Find distance between \meta{coor 1} and \meta{coor 2}, and store that 
 %  value to \meta{fp var}.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}
 %  \path (0,0) coordinate (a) (4,3) coordinate (b);
 %  \ExplSyntaxOn
@@ -580,7 +580,7 @@
 %This key can be used to change the name of the returned coordinates. The 
 %initial value of this key is |trt output|.
 %\end{function}
-%\begin{codeexample}
+%\begin{codeexample}[]
 %\begin{tikzpicture}[trt={output name=hello world}]
 %  \draw (1,3) coordinate (a) -- 
 %        (0,0) coordinate (b) -- 
