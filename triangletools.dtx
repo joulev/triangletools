@@ -384,22 +384,27 @@
 %  \fp_new:N \l_foo_tmpc_fp
 %  \trt_lt_get_line_equation:nnNNN {a} {b} 
 %    \l_foo_tmpa_fp \l_foo_tmpb_fp \l_foo_tmpc_fp
-%  \fp_new:N \c_foo_cm_fp
-%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
 %  \def \resultequation {
-%    $\fp_eval:n {round (\l_foo_tmpa_fp / \c_foo_cm_fp)}x + 
-%     \fp_eval:n {round (\l_foo_tmpb_fp / \c_foo_cm_fp)}y
-%    =\fp_eval:n {round (\l_foo_tmpc_fp / (\c_foo_cm_fp * \c_foo_cm_fp))}$
+%    $\fp_eval:n {round (\l_foo_tmpa_fp / 1cm)}x + 
+%     \fp_eval:n {round (\l_foo_tmpb_fp / 1cm)}y
+%    =\fp_eval:n {round (\l_foo_tmpc_fp / (1cm * 1cm))}$
 %  }
 %  \ExplSyntaxOff
 %  \draw (a) -- (b) node[midway,sloped,below] {\resultequation};
+%  \ExplSyntaxOn
+%  \path (1,-1) node[below,align=left] {
+%    Actual ~ values:\\
+%    $a = \fp_eval:n {\l_foo_tmpa_fp / 1cm}$\\
+%    $b = \fp_eval:n {\l_foo_tmpb_fp / 1cm}$\\
+%    $c = \fp_eval:n {\l_foo_tmpc_fp / (1cm * 1cm)}$
+%  };
+%  \ExplSyntaxOff
 %\end{tikzpicture}
 %\end{codeexample}
 %\ExplSyntaxOn
 %\cs_undefine:N \l_foo_tmpa_fp
 %\cs_undefine:N \l_foo_tmpb_fp
 %\cs_undefine:N \l_foo_tmpc_fp
-%\cs_undefine:N \c_foo_cm_fp
 %\ExplSyntaxOff
 %\begin{function}{\trt_lt_get_intersection_line:NNNNNNNN}
 %  \begin{syntax}
@@ -471,16 +476,22 @@
 %  \trt_lt_get_perpendicular_equation:nNNNNNN {a}
 %    \l_foo_tmpa_fp \l_foo_tmpb_fp \l_foo_tmpc_fp
 %    \l_foo_tmpd_fp \l_foo_tmpe_fp \l_foo_tmpf_fp
-%  \fp_new:N \c_foo_cm_fp
-%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
 %  \def \resultequation {
-%    $\fp_eval:n {round (\l_foo_tmpd_fp / \c_foo_cm_fp)}x + 
-%     \fp_eval:n {round (\l_foo_tmpe_fp / \c_foo_cm_fp)}y
-%    =\fp_eval:n {round (\l_foo_tmpf_fp / (\c_foo_cm_fp * \c_foo_cm_fp))}$
+%    $\fp_eval:n {round (\l_foo_tmpd_fp / 1cm)}x + 
+%     \fp_eval:n {round (\l_foo_tmpe_fp / 1cm)}y
+%    =\fp_eval:n {round (\l_foo_tmpf_fp / (1cm * 1cm))}$
 %  }
 %  \ExplSyntaxOff
 %  \path (1,0) node[below=3mm,align=center] 
 %    {Equation of perpendicular line:\\\resultequation};
+%  \ExplSyntaxOn
+%  \path (1,-1.5) node[below,align=left] {
+%    Actual ~ values:\\
+%    $a = \fp_eval:n {\l_foo_tmpd_fp / 1cm}$\\
+%    $b = \fp_eval:n {\l_foo_tmpe_fp / 1cm}$\\
+%    $c = \fp_eval:n {\l_foo_tmpf_fp / (1cm * 1cm)}$
+%  };
+%  \ExplSyntaxOff
 %\end{tikzpicture}
 %\end{codeexample}
 %\ExplSyntaxOn
@@ -490,7 +501,6 @@
 %\cs_undefine:N \l_foo_tmpd_fp
 %\cs_undefine:N \l_foo_tmpe_fp
 %\cs_undefine:N \l_foo_tmpf_fp
-%\cs_undefine:N \c_foo_cm_fp
 %\ExplSyntaxOff
 %\begin{function}{\trt_lt_get_perpendicular_coordinate:nnnNN}
 %  \begin{syntax}
@@ -548,16 +558,13 @@
 %  \ExplSyntaxOn
 %  \fp_new:N \l_foo_tmpa_fp
 %  \trt_distance:nnN {a} {b} \l_foo_tmpa_fp
-%  \fp_new:N \c_foo_cm_fp
-%  \fp_set:Nn \c_foo_cm_fp {28.45275590551181}
 %  \draw (a) -- (b) node[midway,sloped,below]
-%    { \fp_eval:n {round(\l_foo_tmpa_fp / \c_foo_cm_fp)} cm };
+%    { \fp_eval:n {round(\l_foo_tmpa_fp / 1cm)} cm };
 %  \ExplSyntaxOff
 %\end{tikzpicture}
 %\end{codeexample}
 %\ExplSyntaxOn
 %\cs_undefine:N \l_foo_tmpa_fp
-%\cs_undefine:N \c_foo_cm_fp
 %\ExplSyntaxOff
 %\begin{function}{\trt_distance_triangle:nnnNNN}
 %  \begin{syntax}
